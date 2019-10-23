@@ -16,8 +16,16 @@ import java.util.Properties;
 
 public class DeliveryTrackerAPISample {
 
-    public static void main(String[] args) throws IOException, AmazonPayClientException {
-        new DeliveryTrackerAPISample().doMain();
+    private static final int SUCCESS = 0, FAIL = 1, ERROR = 9;
+
+    public static void main(String[] args) {
+        try {
+            int httpStatus = new DeliveryTrackerAPISample().doMain();
+            System.exit(httpStatus == 200 ? SUCCESS : FAIL);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(ERROR);
+        }
     }
 
     private final Properties prop;
@@ -28,16 +36,18 @@ public class DeliveryTrackerAPISample {
         this.prop = prop;
     }
 
-    public void doMain() throws IOException, AmazonPayClientException {
+    public int doMain() throws IOException, AmazonPayClientException {
 
-        AmazonPayResponse response = payClient().deliveryTracker(createPayload());
+        AmazonPayResponse response = createPayClient().deliveryTracker(createPayload());
 
         System.out.println(response.getStatus());
         System.out.println(response.getHeaders());
         System.out.println(response.getResponse());
+
+        return response.getStatus();
     }
 
-    private AmazonPayClient payClient() throws AmazonPayClientException, IOException {
+    private AmazonPayClient createPayClient() throws AmazonPayClientException, IOException {
         PayConfiguration payConfiguration = new PayConfiguration()
                 .setPublicKeyId(prop.getProperty("publicKeyId"))
                 .setRegion(Region.JP)
