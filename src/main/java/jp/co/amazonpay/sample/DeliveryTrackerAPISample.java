@@ -20,11 +20,16 @@ public class DeliveryTrackerAPISample {
     private static final int RETRY_MAX = 5;
 
     public static void main(String[] args) throws InterruptedException {
-        int result = FAIL;
-        for (int i = 0; i < RETRY_MAX && result != SUCCESS; i++) {
+        int result = SUCCESS;
+        for (int i = 0; i < RETRY_MAX; i++) {
             try {
                 int httpStatus = new DeliveryTrackerAPISample().doMain();
-                result = httpStatus == 200 ? SUCCESS : FAIL;
+                if (httpStatus == 200) {
+                    result = SUCCESS;
+                    break;
+                } else {
+                    result = FAIL;
+                }
             } catch (Throwable t) {
                 t.printStackTrace();
                 result = ERROR;
