@@ -17,15 +17,21 @@ import java.util.Properties;
 public class DeliveryTrackerAPISample {
 
     private static final int SUCCESS = 0, FAIL = 1, ERROR = 9;
+    private static final int RETRY_MAX = 5;
 
-    public static void main(String[] args) {
-        try {
-            int httpStatus = new DeliveryTrackerAPISample().doMain();
-            System.exit(httpStatus == 200 ? SUCCESS : FAIL);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(ERROR);
+    public static void main(String[] args) throws InterruptedException {
+        int result = FAIL;
+        for (int i = 0; i < RETRY_MAX && result != SUCCESS; i++) {
+            try {
+                int httpStatus = new DeliveryTrackerAPISample().doMain();
+                result = httpStatus == 200 ? SUCCESS : FAIL;
+            } catch (Throwable t) {
+                t.printStackTrace();
+                result = ERROR;
+            }
+            Thread.sleep(1000);
         }
+        System.exit(result);
     }
 
     private final Properties prop;
